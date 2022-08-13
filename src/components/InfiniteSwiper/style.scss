@@ -1,0 +1,36 @@
+.red-box {
+  background-color: red;
+}
+
+.green-box {
+  background-color: green;
+}
+
+.blue-box {
+  background-color: blue;
+}
+
+.pink-box {
+  background-color: pink;
+}
+
+.purple-box {
+  background-color: purple;
+}
+
+.box {
+  width: 100%;
+  height: 500px;
+}
+
+.infinite-swiper {
+  position: relative;
+
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+}
