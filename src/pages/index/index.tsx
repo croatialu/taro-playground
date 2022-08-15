@@ -32,6 +32,12 @@ const dataSource = [{
   },{
     className: 'box blue-box',
     data: { no: 9, color: 'blue' },
+  },{
+    className: 'box red-box',
+    data: { no: 10, color: 'red' },
+  },{
+    className: 'box yellow-box',
+    data: { no: 11, color: 'yellow' },
   },
 ]
 
