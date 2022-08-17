@@ -1,4 +1,4 @@
-import {getTargetIndex} from "./utils";
+import {getSafeIndex, getStepValue, getTargetIndex, sleep} from "./utils";
 
 /**
  * 有 originArray: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -54,6 +54,14 @@ interface SwiperSchedulerParams<T> {
   defaultMarkIndex?: number
 
   loop?: boolean
+
+  onRestart?: (swiperIndex: number, key: string) => void
+
+  onSwiperIndexChange?: (swiperIndex: number, markIndex: number) => void
+
+  onSwiperSourceChange?: (source: T[]) => void
+
+  duration?: number
 }
 
 class SwiperScheduler<T> {
@@ -62,15 +70,29 @@ class SwiperScheduler<T> {
 
   minCount: number;
   swiperIndex = 0;
+
   markIndex = 0;
+
+  markIndexOfDelay = 0;
+
+  step = 0;
 
   loop = true
 
-  source: T[]
+  duration = 500
+
+  source: T[] = []
   /**
    * 当前的索引映射： swiperIndex: markIndex
    */
   indexMapping = new Map<number, number>()
+
+
+  onRestart: SwiperSchedulerParams<T>['onRestart']
+
+  onSwiperIndexChange: SwiperSchedulerParams<T>['onSwiperIndexChange']
+
+  onSwiperSourceChange: SwiperSchedulerParams<T>['onSwiperSourceChange']
 
   constructor(params: SwiperSchedulerParams<T>) {
 
@@ -78,6 +100,10 @@ class SwiperScheduler<T> {
   }
 
   get maxSwiperIndex() {
+
+    if (this.source.length) {
+      return this.source.length - 1
+    }
 
     return this.minCount - 1;
   }
@@ -87,46 +113,44 @@ class SwiperScheduler<T> {
   }
 
   get minMiddleCount() {
+    // 最小为2
     return Math.floor(this.minCount / 2)
   }
 
   get circular() {
     if (this.loop) return true
-    return this.markIndex !== 0 && this.markIndex !== this.maxMarkIndex
+    // 使用 markIndexOfDelay 的原因是：如果使用 markIndex 及时更新，会导致swiper组件props变更，动画消失
+    return this.markIndexOfDelay !== 0 && this.markIndexOfDelay !== this.maxMarkIndex
   }
 
   private get isFirstGroup() {
-    return this.swiperIndex === this.markIndex
+    return this.swiperIndex === this.markIndex && this.markIndex <= this.minMiddleCount
   }
 
   private get isLastGroup() {
-    return this.maxMarkIndex - this.markIndex < this.minCount
+    return this.maxMarkIndex - this.markIndex <= Math.max(this.minMiddleCount, 2)
   }
 
-  computeSwiperIndex() {
+  computeSwiperIndex(step?: number) {
+    if (this.loop) {
+      return getTargetIndex(this.swiperIndex + (step || 0), this.maxSwiperIndex)
+    }
+
     let localSwiperIndex = this.markIndex % this.minCount
 
-    if (!this.loop && (this.maxMarkIndex - this.markIndex) <= this.minMiddleCount) {
+    if (this.maxMarkIndex - this.markIndex <= this.minMiddleCount) {
       localSwiperIndex += this.minCount
     }
+    console.log(localSwiperIndex, 'localSwiperIndex')
 
     return localSwiperIndex
   }
 
   getIndexMapping() {
 
-    console.log({
-        isFirstGroup: this.isFirstGroup,
-        isLastGroup: this.isLastGroup,
-        maxMarkIndex: this.maxMarkIndex,
-        swiperIndex: this.swiperIndex,
-        markIndex: this.markIndex
-      },
-      'SwiperScheduler - getIndexMapping'
-    )
     if (!this.loop) {
-      if (this.isFirstGroup && this.markIndex <= this.minMiddleCount) return this.getFirstGroupIndexMapping()
-      if (this.isLastGroup && this.maxMarkIndex - this.markIndex <= this.minMiddleCount) return this.getLastGroupIndexMapping()
+      if (this.isFirstGroup) return this.getFirstGroupIndexMapping()
+      if (this.isLastGroup) return this.getLastGroupIndexMapping()
     }
 
     const map = new Map<number, number>()
@@ -140,11 +164,6 @@ class SwiperScheduler<T> {
       const prevMarkIndex = getTargetIndex(this.markIndex - count, this.maxMarkIndex)
       const nextMarkIndex = getTargetIndex(this.markIndex + count, this.maxMarkIndex)
 
-      console.log({
-        prevSwiperIndex, prevMarkIndex,
-        nextSwiperIndex, nextMarkIndex,
-        swiperIndex: this.swiperIndex
-      }, '233333333')
       map.set(prevSwiperIndex, prevMarkIndex)
       map.set(nextSwiperIndex, nextMarkIndex)
     })
@@ -152,45 +171,54 @@ class SwiperScheduler<T> {
     return map
   }
 
-  setMarkIndex(markIndex: number) {
-
-    this.markIndex = Math.min(markIndex, this.maxMarkIndex)
-    this.recompute()
-
-    return this.source
-  }
-
   public updateDataSource(value: T[]) {
     this.dataSource = value
     return this.recompute() || []
   }
 
+
   public nextSection() {
-    this.offsetSection(1)
+    return this.offsetSection(1)
+  }
+
+  public nextSectionAsync() {
+    return this.offsetSectionAsync(1)
   }
 
   public prevSection() {
-    this.offsetSection(-1)
+    return this.offsetSection(-1)
+  }
+
+  public prevSectionAsync() {
+    return this.offsetSectionAsync(-1)
   }
 
   public setup(params: Partial<SwiperSchedulerParams<T>>) {
-    const {minCount = 3, dataSource = [], defaultMarkIndex = 0, loop = false} = params
+    const {
+      minCount = 3,
+      dataSource = [],
+      defaultMarkIndex = 0,
+      loop = false,
+      duration = 300,
+      onRestart,
+      onSwiperIndexChange,
+      onSwiperSourceChange
+    } = params
 
-    this.minCount = minCount;
-    this.markIndex = defaultMarkIndex;
-    this.loop = loop
     this.dataSource = dataSource
+    this.minCount = minCount;
+    this.loop = loop
+    this.setMarkIndex(defaultMarkIndex)
+
+    this.onRestart = onRestart
+    this.onSwiperIndexChange = onSwiperIndexChange
+    this.onSwiperSourceChange = onSwiperSourceChange
+
+    this.duration = duration
 
     this.recompute()
   }
 
-  public offsetSection(step: number) {
-    const markIndex = getTargetIndex(this.markIndex + step, this.maxMarkIndex)
-    this.swiperIndex = this.loop ? getTargetIndex(this.swiperIndex + step, this.maxSwiperIndex) : this.computeSwiperIndex()
-    return this.setMarkIndex(
-      markIndex
-    )
-  }
 
   /**
    * 判断当前swiperIndex是否是active状态
@@ -198,20 +226,100 @@ class SwiperScheduler<T> {
    */
   public getActiveStatusBySwiperIndex(index: number) {
     const targetMarkIndex = this.indexMapping.get(index);
-    return this.markIndex === targetMarkIndex
+    return this.markIndexOfDelay === targetMarkIndex
+  }
+
+  public recompute() {
+    if (!this.dataSource.length) return []
+    this.setSwiperIndex(
+      this.computeSwiperIndex()
+    )
+    this.setSource(
+      this.computeSource()
+    )
+    this.updateMarkIndexOfDelay()
+
+    return this.source
+  }
+
+  public toSection(markIndex: number) {
+    const step = getStepValue(this.markIndex, markIndex, this.maxMarkIndex)
+    if (Math.abs(step) === 1) {
+      return this.offsetSection(step)
+    }
+
+    this.setMarkIndex(
+      getSafeIndex(markIndex, this.maxMarkIndex)
+    )
+
+
+    return {
+      swiperIndex: this.swiperIndex,
+      markIndex: this.markIndex
+    }
+  }
+
+  public offsetSection(step: number) {
+
+    this.setMarkIndex(
+      this.markIndex + step
+    )
+
+    this.setSwiperIndex(
+      this.computeSwiperIndex(step)
+    )
+
+    return {
+      swiperIndex: this.swiperIndex,
+      markIndex: this.markIndex
+    }
+  }
+
+  public async offsetSectionAsync(step: number) {
+    const result = this.offsetSection(step)
+    await sleep(this.duration)
+    return result
+  }
+
+  private setMarkIndex(markIndex: number) {
+    const preMarkIndex = this.markIndex
+    const getIndex = this.loop ? getTargetIndex : getSafeIndex
+    this.markIndex = getIndex(markIndex, this.maxMarkIndex)
+
+    if (!this.loop && Math.abs(this.markIndex - preMarkIndex) > 1) {
+
+      this.setSwiperIndex(
+        this.computeSwiperIndex()
+      )
+
+      this.recompute()
+
+      this.onRestart?.(
+        this.swiperIndex,
+        Date.now().toString(36).slice(0, 8)
+      )
+    } else {
+
+    }
+
+    return this.markIndex
+  }
+
+
+  private setSwiperIndex(swiperIndex: number) {
+    const preSwiperIndex = this.swiperIndex
+    this.swiperIndex = getSafeIndex(swiperIndex, this.maxSwiperIndex)
+
+    if (preSwiperIndex !== this.swiperIndex) {
+      this.onSwiperIndexChange?.(this.swiperIndex, this.markIndex)
+    }
+
+    return this.swiperIndex
   }
 
   private setSource(source: T[]) {
     this.source = source
-  }
-
-  private recompute() {
-    if (!this.dataSource.length) return
-    this.swiperIndex = this.loop ? this.swiperIndex : this.computeSwiperIndex()
-    const result = this.computeSource()
-    this.setSource(result)
-
-    return result
+    this.onSwiperSourceChange?.(this.source)
   }
 
   /**
@@ -254,6 +362,10 @@ class SwiperScheduler<T> {
     console.log(arr, this.markIndex, 'index - arr')
 
     return arr.map(index => this.dataSource[index])
+  }
+
+  private updateMarkIndexOfDelay() {
+    this.markIndexOfDelay = this.markIndex
   }
 }
 

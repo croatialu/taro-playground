@@ -4,7 +4,7 @@
   "description": "playground",
   "appid": "wx0d7d78f12d497d18",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "es6": false,
     "enhance": false,
     "postcss": false,
@@ -39,5 +39,6 @@
     "minifyWXSS": true
   },
   "compileType": "miniprogram",
+  "libVersion": "2.25.2",
   "condition": {}
 }

@@ -1,8 +1,9 @@
-import {Component, FC, useEffect} from 'react'
-import {View} from '@tarojs/components'
+import {Component, FC, useEffect, useState} from 'react'
+import {Button, Input, View} from '@tarojs/components'
 import './index.scss'
 import './../../components/LazySwiper/SwiperScheduler'
 import LazySwiper from "../../components/LazySwiper/LazySwiper";
+import useLazySwiper from "../../components/LazySwiper/useLazySwiper";
 
 const dataSource = [{
   className: 'box red-box',
@@ -55,6 +56,41 @@ const ColorBox: FC<{ source: (typeof dataSource)[number]['data'] }> = ({source})
   </View>
 }
 
+const App = () => {
+  const [lazySwiper] = useLazySwiper()
+
+  const [swiperIndex, setSwiperIndex] = useState(0)
+
+  return (
+    <View className='index'>
+      <LazySwiper
+        dataSource={dataSource}
+        maxCount={3}
+        lazySwiper={lazySwiper}
+        renderContent={(v, {isActive}) => {
+          if (isActive) return <ColorBox source={v} />
+          return 'default'
+        }}
+        duration={1000}
+        // loop
+        keyExtractor={(v) => v.no.toString()}
+      />
+
+      <View className='fixed-bar'>
+        <Button onClick={() => lazySwiper.prevSection()}>上一章</Button>
+        <Button onClick={() => lazySwiper.nextSection()}>下一章</Button>
+
+        <Input type='number'
+          style={{width: 50, backgroundColor: 'skyblue'}}
+          value={swiperIndex.toString()}
+          onInput={e => setSwiperIndex(Number(e.detail.value))}
+        />
+        <Button onClick={() => lazySwiper.toSection(swiperIndex)}>跳转</Button>
+      </View>
+    </View>
+  )
+}
+
 export default class Index extends Component {
 
   memo: any = {}
@@ -74,20 +110,10 @@ export default class Index extends Component {
   componentDidHide() {
   }
 
+
   render() {
     return (
-      <View className='index'>
-        <LazySwiper
-          dataSource={dataSource}
-          maxCount={3}
-          renderContent={(v, {isActive}) => {
-            if (isActive) return <ColorBox source={v} />
-            return 'default'
-          }}
-          // loop
-          keyExtractor={(v) => v.no.toString()}
-        />
-      </View>
+      <App />
     )
   }
 }

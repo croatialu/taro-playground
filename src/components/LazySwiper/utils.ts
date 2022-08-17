@@ -22,17 +22,22 @@ export const getSafeIndex = (index: number, maxIndex: number, minIndex = 0) => {
 }
 
 export const getTargetIndex = (toIndex: number, maxIndex: number, minIndex = 0) => {
-  if(toIndex > maxIndex) return (toIndex % maxIndex) - 1
-  if(toIndex < minIndex) return maxIndex + (toIndex % maxIndex) + 1
+  if (toIndex > maxIndex) return (toIndex % maxIndex) - 1
+  if (toIndex < minIndex) return maxIndex + (toIndex % maxIndex) + 1
 
   return toIndex
 }
 
-export const getStepValue = (fromIndex: number, toIndex: number) => {
-  if(fromIndex === toIndex) return 0
-  if((toIndex - fromIndex === 1) || (toIndex === 0 && fromIndex > 1)) {
-    return 1;
-  }
+export const getStepValue = (fromIndex: number, toIndex: number, maxIndex = 1) => {
+  if (fromIndex === toIndex) return 0
+  if (fromIndex === 0 && toIndex === maxIndex) return -1;
+  if (toIndex === 0 && fromIndex === maxIndex) return 1;
 
-  return -1
+  return toIndex - fromIndex
+}
+
+export const sleep = (timeout = 300) => {
+  return new Promise(r => {
+    setTimeout(r, timeout)
+  })
 }

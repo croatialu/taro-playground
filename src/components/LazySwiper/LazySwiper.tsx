@@ -5,13 +5,38 @@ import {SwiperProps} from "@tarojs/components/types/Swiper";
 import SwiperScheduler from "./SwiperScheduler";
 import {LazySwiperItem, LazySwiperProps} from "./types";
 
-import {getStepValue} from "./utils";
+import {getStepValue, sleep} from "./utils";
 import {minCount} from "./constant";
 
 import './style.scss'
 
 function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
-  const {dataSource, maxCount = 3, renderContent, loop, keyExtractor} = props
+  const {
+    dataSource,
+    maxCount = 3,
+    renderContent,
+    loop,
+    keyExtractor,
+    lazySwiper,
+    duration = 500
+  } = props
+  const [isAnimating, setAnimating] = useState(false)
+  const [swiperIndex, setSwiperIndex] = useState(0)
+  const [source, setSource] = useState<LazySwiperItem<T>[]>([])
+
+  const [swiperKey, setSwiperKey] = useState('normal')
+
+
+  const updateSwiperIndex = useCallback(async (index: number) => {
+    setSwiperIndex(index)
+    setAnimating(true)
+
+    await sleep(duration)
+
+    swiperSchedulerRef.current.recompute()
+    await sleep(100)
+    setAnimating(false)
+  }, [duration])
 
   const swiperSchedulerRef = useRef<SwiperScheduler<LazySwiperItem<T>>>(
     useMemo(() => {
@@ -20,15 +45,22 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
         defaultMarkIndex: 0,
         minCount: Math.max(minCount, maxCount),
         loop,
+        duration,
+        onRestart(index, key) {
+          console.error('onRestart', index, key)
+          setSwiperIndex(index)
+          setSwiperKey(key)
+        },
+        onSwiperIndexChange(index) {
+          updateSwiperIndex(index)
+        },
+        onSwiperSourceChange(value) {
+          console.log('onSwiperSourceChange', value)
+          setSource(value)
+        }
       })
-    }, [dataSource, loop, maxCount])
+    }, [dataSource, duration, loop, maxCount,])
   )
-
-
-  const stepValue = useRef(0)
-  const [isAnimating, setAnimating] = useState(false)
-  const [swiperIndex, setSwiperIndex] = useState(0)
-  const [source, setSource] = useState<LazySwiperItem<T>[]>([])
 
 
   useEffect(() => {
@@ -37,32 +69,49 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
     )
   }, [dataSource])
 
+  const updateSwiperIndexByStep = useCallback(async (step,) => {
+    const swiperScheduler = swiperSchedulerRef.current
+    swiperScheduler.offsetSection(step)
+  }, [])
+
   const handleChange = useCallback((event: BaseEventOrig<SwiperProps.onChangeEventDetail>) => {
-    console.log('change', swiperIndex, event.detail.current)
     const eventIndex = event.detail.current
 
-    stepValue.current = getStepValue(swiperIndex, eventIndex)
+    if (swiperIndex === eventIndex) return;
 
-    setAnimating(true)
-    setSwiperIndex(eventIndex)
-  }, [swiperIndex])
+    const step = getStepValue(swiperIndex, eventIndex, source.length - 1)
 
-  const handleAnimationEnd = useCallback(() => {
-    setTimeout(() => {
-      setAnimating(false)
-    }, 100)
-    if (stepValue.current === 0) return
-    const sourceCopy = swiperSchedulerRef.current.offsetSection(stepValue.current)
-    setSource(sourceCopy)
+    updateSwiperIndexByStep(step)
+  }, [source.length, swiperIndex, updateSwiperIndexByStep])
 
-    stepValue.current = 0;
-  }, [])
 
   const getActiveStatusBySwiperIndex = useCallback((index: number) => {
     return swiperSchedulerRef.current.getActiveStatusBySwiperIndex(index)
   }, [])
 
-  console.log(source, 'source')
+  const nextSection = useCallback(() => {
+    updateSwiperIndexByStep(1)
+  }, [updateSwiperIndexByStep])
+
+  const prevSection = useCallback(() => {
+    updateSwiperIndexByStep(-1)
+  }, [updateSwiperIndexByStep])
+
+  const toSection = useCallback((index) => {
+    swiperSchedulerRef.current.toSection(index)
+  }, [])
+
+
+  useEffect(() => {
+    if (!lazySwiper) return;
+    Object.assign(lazySwiper, {
+      nextSection,
+      prevSection,
+      toSection
+    })
+  }, [lazySwiper, nextSection, prevSection, toSection])
+
+  console.log(source, swiperIndex, 'source')
 
   return (
     <View className='lazy-swiper'>
@@ -70,16 +119,17 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
         style={{
           height: '100vh'
         }}
+        key={swiperKey}
         current={swiperIndex}
         onChange={handleChange}
-        onAnimationFinish={handleAnimationEnd}
+
         className='test-h'
         indicatorColor='#999'
         indicatorActiveColor='#333'
         indicatorDots
         vertical
         circular={swiperSchedulerRef.current.circular}
-        duration={300}
+        duration={duration}
         disableTouch={isAnimating}
       >
         {

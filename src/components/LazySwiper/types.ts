@@ -24,4 +24,19 @@ export interface LazySwiperProps<T> {
    * @default true
    */
   loop?: boolean
+
+
+  /**
+   * 切换动画时长
+   * @default 300
+   */
+  duration?: number
+
+  lazySwiper?: LazySwiperExtra
+}
+
+export interface LazySwiperExtra {
+  nextSection: () => void
+  prevSection: () => void
+  toSection: (index: number) => void
 }
