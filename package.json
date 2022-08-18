@@ -47,6 +47,7 @@
     "@babel/core": "^7.8.0",
     "@tarojs/mini-runner": "3.3.10",
     "@tarojs/plugin-framework-react": "^3.5.3",
+    "@tarojs/plugin-platform-weapp": "^3.5.3",
     "@tarojs/webpack-runner": "3.3.10",
     "@types/react": "^17.0.2",
     "@types/webpack-env": "^1.13.6",

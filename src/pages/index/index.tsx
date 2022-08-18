@@ -1,9 +1,8 @@
 import {Component, FC, useEffect, useState} from 'react'
 import {Button, Input, View} from '@tarojs/components'
 import './index.scss'
-import './../../components/LazySwiper/SwiperScheduler'
-import LazySwiper from "../../components/LazySwiper/LazySwiper";
-import useLazySwiper from "../../components/LazySwiper/useLazySwiper";
+import {LazySwiper, useLazySwiper} from '../../components/LazySwiper';
+
 
 const dataSource = [{
   className: 'box red-box',
@@ -63,6 +62,7 @@ const App = () => {
 
   return (
     <View className='index'>
+      123
       <LazySwiper
         dataSource={dataSource}
         maxCount={3}
@@ -71,7 +71,7 @@ const App = () => {
           if (isActive) return <ColorBox source={v} />
           return 'default'
         }}
-        duration={1000}
+        duration={500}
         // loop
         keyExtractor={(v) => v.no.toString()}
       />
@@ -112,8 +112,12 @@ export default class Index extends Component {
 
 
   render() {
+    // <App />
+
     return (
-      <App />
+      <View>
+        <App />
+      </View>
     )
   }
 }

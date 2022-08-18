@@ -1,6 +1,7 @@
 import {BaseEventOrig, Swiper, SwiperItem, View} from "@tarojs/components"
 import {PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {SwiperProps} from "@tarojs/components/types/Swiper";
+import Taro from "@tarojs/taro";
 
 import SwiperScheduler from "./SwiperScheduler";
 import {LazySwiperItem, LazySwiperProps} from "./types";
@@ -9,6 +10,10 @@ import {getStepValue, sleep} from "./utils";
 import {minCount} from "./constant";
 
 import './style.scss'
+
+const ENV_TYPE = Taro.getEnv()
+
+console.log(ENV_TYPE, 'ENV_TYPE')
 
 function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
   const {
@@ -31,10 +36,12 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
     setSwiperIndex(index)
     setAnimating(true)
 
-    await sleep(duration)
+    if (ENV_TYPE === 'WEAPP') {
+      await sleep(duration)
+    }
 
     swiperSchedulerRef.current.recompute()
-    await sleep(100)
+    await sleep(300)
     setAnimating(false)
   }, [duration])
 
@@ -59,7 +66,7 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
           setSource(value)
         }
       })
-    }, [dataSource, duration, loop, maxCount,])
+    }, [dataSource, duration, loop, maxCount, updateSwiperIndex])
   )
 
 
@@ -80,7 +87,6 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
     if (swiperIndex === eventIndex) return;
 
     const step = getStepValue(swiperIndex, eventIndex, source.length - 1)
-
     updateSwiperIndexByStep(step)
   }, [source.length, swiperIndex, updateSwiperIndexByStep])
 
@@ -122,7 +128,6 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
         key={swiperKey}
         current={swiperIndex}
         onChange={handleChange}
-
         className='test-h'
         indicatorColor='#999'
         indicatorActiveColor='#333'
