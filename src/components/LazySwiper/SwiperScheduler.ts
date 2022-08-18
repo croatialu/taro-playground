@@ -243,7 +243,10 @@ class SwiperScheduler<T> {
   }
 
   public toSection(markIndex: number) {
-    const step = getStepValue(this.markIndex, markIndex, this.maxMarkIndex)
+    const step = getStepValue(this.markIndex, markIndex, this.maxMarkIndex, this.loop)
+
+    console.log(step, 'toSection')
+    //
     if (Math.abs(step) === 1) {
       return this.offsetSection(step)
     }
@@ -252,6 +255,9 @@ class SwiperScheduler<T> {
       getSafeIndex(markIndex, this.maxMarkIndex)
     )
 
+    this.setSwiperIndex(
+      this.computeSwiperIndex()
+    )
 
     return {
       swiperIndex: this.swiperIndex,
@@ -287,20 +293,19 @@ class SwiperScheduler<T> {
     this.markIndex = getIndex(markIndex, this.maxMarkIndex)
 
     if (!this.loop && Math.abs(this.markIndex - preMarkIndex) > 1) {
-
-      this.setSwiperIndex(
-        this.computeSwiperIndex()
-      )
-
+      // 先计算出数据源， 方便后续的 swiperIndex 计算
       this.recompute()
 
       this.onRestart?.(
         this.swiperIndex,
         Date.now().toString(36).slice(0, 8)
       )
-    } else {
-
     }
+
+    if (this.loop && Math.abs(getStepValue(preMarkIndex, this.markIndex, this.maxMarkIndex)) > 1) {
+      this.recompute()
+    }
+
 
     return this.markIndex
   }
@@ -308,7 +313,7 @@ class SwiperScheduler<T> {
 
   private setSwiperIndex(swiperIndex: number) {
     const preSwiperIndex = this.swiperIndex
-    this.swiperIndex = getSafeIndex(swiperIndex, this.maxSwiperIndex)
+    this.swiperIndex = swiperIndex
 
     if (preSwiperIndex !== this.swiperIndex) {
       this.onSwiperIndexChange?.(this.swiperIndex, this.markIndex)
@@ -336,7 +341,15 @@ class SwiperScheduler<T> {
 
     const lastGroupMaxCount = this.dataSource.length % this.minCount + this.minCount
     const lastGroupMaxIndex = lastGroupMaxCount - 1;
+
+
     const groupSize = Math.min(this.swiperIndex + this.minMiddleCount, lastGroupMaxIndex) + 1;
+    console.log({
+      lastGroupMaxCount,
+      groupSize,
+      swiperIndex: this.swiperIndex,
+      minMiddleCount: this.minMiddleCount
+    }, 'lastGroupMaxCount')
 
     const startIndex = this.maxMarkIndex - lastGroupMaxIndex
 
@@ -358,8 +371,6 @@ class SwiperScheduler<T> {
     for (const [key, value] of indexMapping) {
       arr[key] = value
     }
-
-    console.log(arr, this.markIndex, 'index - arr')
 
     return arr.map(index => this.dataSource[index])
   }

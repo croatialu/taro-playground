@@ -28,10 +28,14 @@ export const getTargetIndex = (toIndex: number, maxIndex: number, minIndex = 0) 
   return toIndex
 }
 
-export const getStepValue = (fromIndex: number, toIndex: number, maxIndex = 1) => {
+export const getStepValue = (fromIndex: number, toIndex: number, maxIndex = 1, loop = true) => {
   if (fromIndex === toIndex) return 0
-  if (fromIndex === 0 && toIndex === maxIndex) return -1;
-  if (toIndex === 0 && fromIndex === maxIndex) return 1;
+  
+  if (loop) {
+    if (fromIndex === 0 && toIndex === maxIndex) return -1;
+    if (toIndex === 0 && fromIndex === maxIndex) return 1;
+  }
+
 
   return toIndex - fromIndex
 }

@@ -54,15 +54,16 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
         loop,
         duration,
         onRestart(index, key) {
-          console.error('onRestart', index, key)
+          console.error('on - restart', index, key)
           setSwiperIndex(index)
           setSwiperKey(key)
         },
         onSwiperIndexChange(index) {
+          console.log('on - onSwiperIndexChange')
           updateSwiperIndex(index)
         },
         onSwiperSourceChange(value) {
-          console.log('onSwiperSourceChange', value)
+          console.log('on - onSwiperSourceChange', value)
           setSource(value)
         }
       })
@@ -117,7 +118,7 @@ function LazySwiper<T>(props: PropsWithChildren<LazySwiperProps<T>>) {
     })
   }, [lazySwiper, nextSection, prevSection, toSection])
 
-  console.log(source, swiperIndex, 'source')
+  // console.log(source, swiperIndex, 'source')
 
   return (
     <View className='lazy-swiper'>
