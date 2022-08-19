@@ -1,7 +1,8 @@
 import {Component, FC, useEffect, useState} from 'react'
 import {Button, Input, Video, View} from '@tarojs/components'
+import LazySwiper, {useLazySwiper} from 'taro-lazy-swiper';
+
 import './index.scss'
-import {LazySwiper, useLazySwiper} from '../../components/LazySwiper';
 
 
 const dataSource = [
@@ -184,8 +185,6 @@ export default class Index extends Component {
 
 
   render() {
-    // <App />
-
     return (
       <View>
         <App />
