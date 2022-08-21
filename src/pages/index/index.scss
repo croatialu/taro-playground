@@ -5,3 +5,13 @@
   display: flex;
   z-index: 1;
 }
+
+.my-lazy-swiper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  .swiper {
+    height: 100%;
+  }
+}

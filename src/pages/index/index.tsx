@@ -1,11 +1,11 @@
-import {Component, FC, useEffect, useState} from 'react'
+import {Component, FC, useCallback, useEffect, useState} from 'react'
 import {Button, Input, Video, View} from '@tarojs/components'
 import LazySwiper, {useLazySwiper} from 'taro-lazy-swiper';
 
 import './index.scss'
 
 
-const dataSource = [
+const originSource = [
   {
     className: 'box red-box',
     data: {
@@ -95,7 +95,23 @@ const dataSource = [
   },
 ]
 
-const ColorBox: FC<{ source: (typeof dataSource)[number]['data'] }> = ({source}) => {
+type SourceItem = typeof originSource[number]
+
+
+const sleep = (timeout: number) => {
+  return new Promise(r => {
+    setTimeout(r, timeout)
+  })
+}
+
+const getSource = async(before: number, count = 5)=>{
+  await sleep(1000)
+
+  return originSource.slice(before, before + count)
+}
+
+
+const ColorBox: FC<{ source: (typeof originSource)[number]['data'] }> = ({source}) => {
 
   useEffect(() => {
     console.log(source.color, 'color - mount')
@@ -106,14 +122,14 @@ const ColorBox: FC<{ source: (typeof dataSource)[number]['data'] }> = ({source})
 
   return <View
     style={{
-      height: '100%',
+      height: '100vh',
       backgroundColor: '#000',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center'
     }}
   >
-    {`no:${source.no}, color: ${source.color} 2333`}
+    <View style={{ color: 'white' }}>{`no:${source.no}, color: ${source.color} 2333`}</View>
     <Video
       style={{width: '100%'}}
       id='video'
@@ -134,9 +150,27 @@ const App = () => {
 
   const [swiperIndex, setSwiperIndex] = useState('10')
 
+  const [dataSource, setDataSource] = useState<SourceItem[]>([])
+
+  const fetchSource = useCallback(async (before: number) => {
+    const list = await getSource(before)
+    console.log('fetchSource', list)
+    setDataSource((origin) => {
+      return [...origin, ...list]
+    })
+  }, [])
+
+  useEffect(() => {
+    fetchSource(0)
+  }, [fetchSource])
+
+
+  console.log(dataSource, 'dataSource')
+
   return (
     <View className='index'>
       <LazySwiper
+        className='my-lazy-swiper'
         dataSource={dataSource}
         maxCount={3}
         lazySwiper={lazySwiper}
@@ -144,13 +178,20 @@ const App = () => {
           if (isActive) return <ColorBox source={v} />
           return 'default'
         }}
+        vertical
         duration={500}
-        loop
+        // loop
         keyExtractor={(v) => v.no.toString()}
+        onChange={({ current }) => {
+          console.log(current, dataSource.length,  'onChange')
+            if(current >= dataSource.length - 4) {
+              fetchSource(dataSource.length)
+            }
+        }}
       />
 
       <View className='fixed-bar'>
-        <Button onClick={() => lazySwiper.prevSection()}>上一章</Button>
+        <Button onClick={() => lazySwiper.prevSection()}>上一章123</Button>
         <Button onClick={() => lazySwiper.nextSection()}>下一章</Button>
         <Button onClick={() => lazySwiper.toSection(0)}>回到头</Button>
         <Input type='number'

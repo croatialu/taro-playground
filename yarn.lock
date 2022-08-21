@@ -22,7 +22,7 @@
   "resolved" "https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.18.8.tgz"
   "version" "7.18.8"
 
-"@babel/core@*", "@babel/core@^7.0.0", "@babel/core@^7.0.0-0", "@babel/core@^7.11.1", "@babel/core@^7.12.0", "@babel/core@^7.13.0", "@babel/core@^7.14.5", "@babel/core@^7.4.0-0", "@babel/core@^7.8.0":
+"@babel/core@*", "@babel/core@^7.0.0", "@babel/core@^7.0.0-0", "@babel/core@^7.11.1", "@babel/core@^7.12.0", "@babel/core@^7.13.0", "@babel/core@^7.14.0", "@babel/core@^7.14.5", "@babel/core@^7.4.0-0", "@babel/core@^7.8.0":
   "integrity" "sha512-JQM6k6ENcBFKVtWvLavlvi/mPcpYZ3+R+2EySDEMSMbp7Mn4FexlbbJVrx2R7Ijhr01T8gyqrOaABWIOgxeUyw=="
   "resolved" "https://registry.npmjs.org/@babel/core/-/core-7.18.10.tgz"
   "version" "7.18.10"
@@ -1325,9 +1325,9 @@
   "resolved" "https://registry.npmjs.org/@stencil/core/-/core-2.4.0.tgz"
   "version" "2.4.0"
 
-"@swc/core-darwin-arm64@1.2.239":
-  "integrity" "sha512-qucvHgJ5VQVZNdQacqbloWDYqZyD1pttBqyRWo3Wqr5mC+JAIJl+JsflFpV8QEgY52aMgk/cLVhTa46Si3L3Jw=="
-  "resolved" "https://registry.npmjs.org/@swc/core-darwin-arm64/-/core-darwin-arm64-1.2.239.tgz"
+"@swc/core-darwin-x64@1.2.239":
+  "integrity" "sha512-0iunP9diQpjtacY+YQDwWmUANe4nA54aPDcum4O2vnhFeAXWoYX0b7FmYdq7UqxpP5IxcBgQAl7QhEfDnGrvoA=="
+  "resolved" "https://registry.npmjs.org/@swc/core-darwin-x64/-/core-darwin-x64-1.2.239.tgz"
   "version" "1.2.239"
 
 "@swc/core@^1.0.46", "@swc/core@^1.2.204":
@@ -7327,6 +7327,8 @@
   "version" "3.5.0"
 
 "miniprogram-compiler@latest":
+  "integrity" "sha512-AHQgJFTnVPMcVBUUdKHlCRC3guK212XkWME0awMQiUgpzp/eIbb3jgFdkl3ib9nDbbEK+m2fSBs0++vwetWJ9Q=="
+  "resolved" "https://registry.npmjs.org/miniprogram-compiler/-/miniprogram-compiler-0.2.1.tgz"
   "version" "0.2.1"
   dependencies:
     "glob" "^7.1.3"
@@ -10202,16 +10204,7 @@
     "svg-tags" "^1.0.0"
     "table" "^4.0.1"
 
-"stylus-loader@^3.0.2":
-  "integrity" "sha512-+VomPdZ6a0razP+zinir61yZgpw2NfljeSsdUF5kJuEzlo3khXhY19Fn6l8QQz1GRJGtMCo8nG5C04ePyV7SUA=="
-  "resolved" "https://registry.npmjs.org/stylus-loader/-/stylus-loader-3.0.2.tgz"
-  "version" "3.0.2"
-  dependencies:
-    "loader-utils" "^1.0.2"
-    "lodash.clonedeep" "^4.5.0"
-    "when" "~3.6.x"
-
-"stylus-loader@3.0.2":
+"stylus-loader@^3.0.2", "stylus-loader@3.0.2":
   "integrity" "sha512-+VomPdZ6a0razP+zinir61yZgpw2NfljeSsdUF5kJuEzlo3khXhY19Fn6l8QQz1GRJGtMCo8nG5C04ePyV7SUA=="
   "resolved" "https://registry.npmjs.org/stylus-loader/-/stylus-loader-3.0.2.tgz"
   "version" "3.0.2"
@@ -10376,9 +10369,11 @@
     "css-mediaquery" "^0.1.2"
     "postcss-value-parser" "^3.3.0"
 
-"taro-lazy-swiper@file:../../Remote/taro-lazy-swiper":
-  "resolved" "file:../../Remote/taro-lazy-swiper"
+"taro-lazy-swiper@file:../taro-lazy-swiper":
+  "resolved" "file:../taro-lazy-swiper"
   "version" "0.0.1"
+  dependencies:
+    "fast-deep-equal" "^3.1.3"
 
 "terser-webpack-plugin@^1.4.3":
   "integrity" "sha512-04Rfe496lN8EYruwi6oPQkG0vo8C+HT49X687FZnpPF0qMAIHONI6HEXYPKDOE8e5HjXTyKfqRd/agHtH0kOtw=="
@@ -10603,15 +10598,20 @@
   dependencies:
     "prelude-ls" "~1.1.2"
 
-"type-fest@^0.13.1", "type-fest@^0.8.1":
-  "integrity" "sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA=="
-  "resolved" "https://registry.npmjs.org/type-fest/-/type-fest-0.8.1.tgz"
-  "version" "0.8.1"
+"type-fest@^0.13.1":
+  "integrity" "sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg=="
+  "resolved" "https://registry.npmjs.org/type-fest/-/type-fest-0.13.1.tgz"
+  "version" "0.13.1"
 
 "type-fest@^0.21.3":
   "integrity" "sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w=="
   "resolved" "https://registry.npmjs.org/type-fest/-/type-fest-0.21.3.tgz"
   "version" "0.21.3"
+
+"type-fest@^0.8.1":
+  "integrity" "sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA=="
+  "resolved" "https://registry.npmjs.org/type-fest/-/type-fest-0.8.1.tgz"
+  "version" "0.8.1"
 
 "type-is@~1.6.18":
   "integrity" "sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g=="

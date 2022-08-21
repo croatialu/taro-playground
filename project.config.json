@@ -40,5 +40,14 @@
   },
   "compileType": "miniprogram",
   "libVersion": "2.25.2",
-  "condition": {}
+  "condition": {},
+  "srcMiniprogramRoot": "dist/",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
 }
