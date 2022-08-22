@@ -104,7 +104,7 @@ const sleep = (timeout: number) => {
   })
 }
 
-const getSource = async(before: number, count = 5)=>{
+const getSource = async (before: number, count = 5) => {
   await sleep(1000)
 
   return originSource.slice(before, before + count)
@@ -129,7 +129,7 @@ const ColorBox: FC<{ source: (typeof originSource)[number]['data'] }> = ({source
       justifyContent: 'center'
     }}
   >
-    <View style={{ color: 'white' }}>{`no:${source.no}, color: ${source.color} 2333`}</View>
+    <View style={{color: 'white'}}>{`no:${source.no}, color: ${source.color} 2333`}</View>
     <Video
       style={{width: '100%'}}
       id='video'
@@ -182,11 +182,19 @@ const App = () => {
         duration={500}
         // loop
         keyExtractor={(v) => v.no.toString()}
-        onChange={({ current }) => {
-          console.log(current, dataSource.length,  'onChange')
-            if(current >= dataSource.length - 4) {
-              fetchSource(dataSource.length)
-            }
+        onBeforeChange={({toIndex}) => {
+
+          if (toIndex === 3) {
+            return false
+          }
+
+          return undefined
+        }}
+        onChange={({current}) => {
+          console.log(current, dataSource.length, 'onChange')
+          if (current >= dataSource.length - 4) {
+            fetchSource(dataSource.length)
+          }
         }}
       />
 
